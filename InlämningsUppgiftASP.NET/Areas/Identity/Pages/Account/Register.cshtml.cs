@@ -20,6 +20,9 @@ namespace InlämningsUppgiftASP.NET.Areas.Identity.Pages.Account
     [AllowAnonymous]
     public class RegisterModel : PageModel
     {
+
+        
+
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
@@ -50,6 +53,11 @@ namespace InlämningsUppgiftASP.NET.Areas.Identity.Pages.Account
         public class InputModel
         {
 
+            
+            [DataType(DataType.Text)]
+            [Display(Name = "Role Name")]
+            public string RoleName { get; set; }
+
             [Required]
             [DataType(DataType.Text)]
             [Display(Name = "First Name")]
@@ -78,7 +86,7 @@ namespace InlämningsUppgiftASP.NET.Areas.Identity.Pages.Account
             public string ConfirmPassword { get; set; }
 
             [Required]
-            [DataType(DataType.DateTime)]
+            [DataType(DataType.Date)]
             [Display(Name = "Date Of Birth")]
             public string DateOfBirth{ get; set; }
         }
@@ -96,6 +104,7 @@ namespace InlämningsUppgiftASP.NET.Areas.Identity.Pages.Account
 
             if (ModelState.IsValid)
             {
+                var roleName = Input.RoleName;
 
                 var user = new ApplicationUser { 
                     UserName = Input.Email,
@@ -107,22 +116,12 @@ namespace InlämningsUppgiftASP.NET.Areas.Identity.Pages.Account
                 var result = await _userManager.CreateAsync(user, Input.Password);
                 if (result.Succeeded)
                 {
-                    await _userManager.AddToRoleAsync(user, "Student");
-                    /*
-                    if (!_userManager.Users.Any())
+                    if (roleName == null)
                     {
-                        await _roleManager.CreateAsync(new IdentityRole("Admin"));
-                        await _roleManager.CreateAsync(new IdentityRole("Teacher"));
-                        await _roleManager.CreateAsync(new IdentityRole("Student"));
-                        await _roleManager.CreateAsync(new IdentityRole("User"));
-
-                        await _userManager.AddToRoleAsync(user, "Admin");
+                        roleName = "Student";
                     }
-                    else
-                    {
-                        await _userManager.AddToRoleAsync(user, "User");
-                    }
-                    */
+                    await _userManager.AddToRoleAsync(user, roleName);
+  
 
                     _logger.LogInformation("User created a new account with password.");
 
@@ -143,8 +142,17 @@ namespace InlämningsUppgiftASP.NET.Areas.Identity.Pages.Account
                     }
                     else
                     {
-                        await _signInManager.SignInAsync(user, isPersistent: false);
-                        return LocalRedirect(returnUrl);
+                        if (User.IsInRole("Admin"))
+                        {
+                            return LocalRedirect(returnUrl);
+                        }
+                        else
+                        {
+                            await _signInManager.SignInAsync(user, isPersistent: false);
+                            return LocalRedirect(returnUrl);
+                        }
+                        //await _signInManager.SignInAsync(user, isPersistent: false);
+                        //return LocalRedirect(returnUrl);
                     }
                 }
                 foreach (var error in result.Errors)
