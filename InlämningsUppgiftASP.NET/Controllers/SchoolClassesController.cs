@@ -47,8 +47,12 @@ namespace InlämningsUppgiftASP.NET.Controllers
         }
 
         // GET: SchoolClasses/Create
-        public IActionResult Create()
+        public async Task<IActionResult> CreateAsync()
         {
+
+            var teachers = await _userManager.GetUsersInRoleAsync("Teacher");
+            ViewBag.Teachers = teachers;
+
             return View();
         }
 
@@ -57,7 +61,7 @@ namespace InlämningsUppgiftASP.NET.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Year")] SchoolClasses schoolClasses)
+        public async Task<IActionResult> Create([Bind("Id,Year,Teacher")] SchoolClasses schoolClasses)
         {
             if (ModelState.IsValid)
             {
@@ -71,6 +75,12 @@ namespace InlämningsUppgiftASP.NET.Controllers
         // GET: SchoolClasses/Edit/5
         public async Task<IActionResult> Edit(string id)
         {
+            var teachers = await _userManager.GetUsersInRoleAsync("Teacher");
+            ViewBag.Teachers = teachers;
+
+            var students = await _userManager.GetUsersInRoleAsync("Student");
+            ViewBag.Students = students;
+
             if (id == null)
             {
                 return NotFound();
@@ -133,6 +143,9 @@ namespace InlämningsUppgiftASP.NET.Controllers
             {
                 return NotFound();
             }
+
+            var teachers = await _userManager.GetUsersInRoleAsync("Teacher");
+            ViewBag.Teachers = teachers;
 
             return View(schoolClasses);
         }

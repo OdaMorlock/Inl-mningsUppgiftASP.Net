@@ -120,6 +120,7 @@ namespace InlämningsUppgiftASP.NET.Areas.Identity.Pages.Account
                     {
                         roleName = "Student";
                     }
+
                     await _userManager.AddToRoleAsync(user, roleName);
   
 

@@ -13,11 +13,27 @@
         <form asp-action="Edit">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <input type="hidden" asp-for="Id" />
+
+            <div class="form-group">
+                <label asp-for="Id" class="control-label"></label>
+                <input asp-for="Id" class="form-control" />
+                <span asp-validation-for="Id" class="text-danger"></span>
+            </div>
+
             <div class="form-group">
                 <label asp-for="Year" class="control-label"></label>
                 <input asp-for="Year" class="form-control" />
                 <span asp-validation-for="Year" class="text-danger"></span>
             </div>
+
+            <div class="form-group">
+                @Html.DropDownListFor(t => t.Teacher, new SelectList(ViewBag.Teachers, "Id", "DisplayName", "Select a Teacher"))
+            </div>
+
+            <div class="form-group">
+                @Html.DropDownListFor(s => s.Students, new SelectList(ViewBag.Students, "Id", "DisplayName", "Select a Students"))
+            </div>
+
             <div class="form-group">
                 <input type="submit" value="Save" class="btn btn-primary" />
             </div>
