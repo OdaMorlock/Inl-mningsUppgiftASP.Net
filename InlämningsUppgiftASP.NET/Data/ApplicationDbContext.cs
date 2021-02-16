@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+﻿using InlämningsUppgiftASP.NET.Models;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -12,5 +13,7 @@ namespace InlämningsUppgiftASP.NET.Data
             : base(options)
         {
         }
+
+        public DbSet<SchoolClasses> SchoolClasses { get; set; }
     }
 }
