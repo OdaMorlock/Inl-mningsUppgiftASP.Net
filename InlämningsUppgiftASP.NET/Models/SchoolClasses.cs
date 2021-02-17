@@ -25,6 +25,6 @@ namespace InlämningsUppgiftASP.NET.Models
 
         public  ApplicationUser Teacher { get; set; }
 
-        public virtual ICollection<ApplicationUser> Students { get; set; }
+        public ApplicationUser Student { get; set; }
     }
 }
