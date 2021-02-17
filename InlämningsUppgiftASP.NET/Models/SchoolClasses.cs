@@ -17,9 +17,13 @@ namespace InlämningsUppgiftASP.NET.Models
         [Required]
         [Column(TypeName ="date")]
         public DateTime Year { get; set; }
+        
+        public string ClassName { get; set; }
 
+        public string TeacherId { get; set; }
+        public string StudentId { get; set; }
 
-        public ApplicationUser Teacher { get; set; }
+        public  ApplicationUser Teacher { get; set; }
 
         public virtual ICollection<ApplicationUser> Students { get; set; }
     }

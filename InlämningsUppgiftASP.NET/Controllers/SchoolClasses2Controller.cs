@@ -8,35 +8,27 @@ using Microsoft.EntityFrameworkCore;
 using InlämningsUppgiftASP.NET.Data;
 using InlämningsUppgiftASP.NET.Models;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Authorization;
 
 namespace InlämningsUppgiftASP.NET.Controllers
 {
-    public class SchoolClassesController : Controller
+    public class SchoolClasses2Controller : Controller
     {
         private readonly ApplicationDbContext _context;
         private readonly UserManager<ApplicationUser> _userManager;
-
-        public SchoolClassesController(ApplicationDbContext context, UserManager<ApplicationUser> userManager)
+        public SchoolClasses2Controller(ApplicationDbContext context, UserManager<ApplicationUser> userManager)
         {
             _context = context;
             _userManager = userManager;
         }
 
-        // GET: SchoolClasses
+        // GET: SchoolClasses2
         public async Task<IActionResult> Index()
         {
-            var classes = await _context.SchoolClasses.ToListAsync();
-
-            foreach (var schoolClass in classes)
-            {
-                schoolClass.Teacher = await _userManager.Users.FirstOrDefaultAsync(au => au.Id == schoolClass.TeacherId);
-            }
-
-            return View(classes);
+            var applicationDbContext = _context.SchoolClasses.Include(s => s.Teacher);
+            return View(await applicationDbContext.ToListAsync());
         }
 
-        // GET: SchoolClasses/Details/5
+        // GET: SchoolClasses2/Details/5
         public async Task<IActionResult> Details(string id)
         {
             if (id == null)
@@ -45,6 +37,7 @@ namespace InlämningsUppgiftASP.NET.Controllers
             }
 
             var schoolClasses = await _context.SchoolClasses
+                .Include(s => s.Teacher)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (schoolClasses == null)
             {
@@ -54,48 +47,33 @@ namespace InlämningsUppgiftASP.NET.Controllers
             return View(schoolClasses);
         }
 
-        // GET: SchoolClasses/Create
-        [Authorize(Roles = "Admin")]
+        // GET: SchoolClasses2/Create
         public async Task<IActionResult> CreateAsync()
         {
-
-            ViewBag.Teachers = await _userManager.GetUsersInRoleAsync("Teacher");
-            
-          
+            ViewData["TeacherId"] = new SelectList(await _userManager.GetUsersInRoleAsync("Teacher"), "Id", "DisplayName");
             return View();
         }
 
-        // POST: SchoolClasses/Create
+        // POST: SchoolClasses2/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Year,Teacher")] SchoolClasses schoolClasses)
+        public async Task<IActionResult> Create([Bind("Id,Year,TeacherId,StudentId")] SchoolClasses schoolClasses)
         {
             if (ModelState.IsValid)
             {
-
-
-                
-                var _teacher = schoolClasses.Teacher;
-               
                 _context.Add(schoolClasses);
-                //_context.Add(_teacher);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
+            ViewData["TeacherId"] = new SelectList(await _userManager.GetUsersInRoleAsync("Teacher"), "Id", "DisplayName");
             return View(schoolClasses);
         }
 
-        // GET: SchoolClasses/Edit/5
+        // GET: SchoolClasses2/Edit/5
         public async Task<IActionResult> Edit(string id)
         {
-            var teachers = await _userManager.GetUsersInRoleAsync("Teacher");
-            ViewBag.Teachers = teachers;
-
-            var students = await _userManager.GetUsersInRoleAsync("Student");
-            ViewBag.Students = students;
-
             if (id == null)
             {
                 return NotFound();
@@ -106,15 +84,16 @@ namespace InlämningsUppgiftASP.NET.Controllers
             {
                 return NotFound();
             }
+            ViewData["TeacherId"] = new SelectList(await _userManager.GetUsersInRoleAsync("Teacher"), "Id", "DisplayName");
             return View(schoolClasses);
         }
 
-        // POST: SchoolClasses/Edit/5
+        // POST: SchoolClasses2/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(string id, [Bind("Id,Year")] SchoolClasses schoolClasses)
+        public async Task<IActionResult> Edit(string id, [Bind("Id,Year,TeacherId,StudentId")] SchoolClasses schoolClasses)
         {
             if (id != schoolClasses.Id)
             {
@@ -141,10 +120,11 @@ namespace InlämningsUppgiftASP.NET.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
+            ViewData["TeacherId"] = new SelectList(await _userManager.GetUsersInRoleAsync("Teacher"), "Id", "DisplayName");
             return View(schoolClasses);
         }
 
-        // GET: SchoolClasses/Delete/5
+        // GET: SchoolClasses2/Delete/5
         public async Task<IActionResult> Delete(string id)
         {
             if (id == null)
@@ -153,19 +133,17 @@ namespace InlämningsUppgiftASP.NET.Controllers
             }
 
             var schoolClasses = await _context.SchoolClasses
+                .Include(s => s.Teacher)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (schoolClasses == null)
             {
                 return NotFound();
             }
 
-            var teachers = await _userManager.GetUsersInRoleAsync("Teacher");
-            ViewBag.Teachers = teachers;
-
             return View(schoolClasses);
         }
 
-        // POST: SchoolClasses/Delete/5
+        // POST: SchoolClasses2/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(string id)
